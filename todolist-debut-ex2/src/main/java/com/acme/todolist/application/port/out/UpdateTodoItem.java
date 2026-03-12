@@ -15,4 +15,5 @@ public interface UpdateTodoItem {
 	 */
 	void storeNewTodoItem(TodoItem item);
 
+	void save(TodoItem item); // ce port permet de sauvegarder un todoitem  sans dependre de la base
 }
