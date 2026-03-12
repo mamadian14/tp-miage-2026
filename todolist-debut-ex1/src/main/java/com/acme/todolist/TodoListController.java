@@ -18,31 +18,26 @@ import org.springframework.web.bind.annotation.RestController;
  * @author bflorat
  *
  */
-@RestController
+@RestController //recevoir les requete HTTP appeler la logique metier
 public class TodoListController {
 
-	private static final String LATE = "[LATE!]";
+	private static final String LATE = "[LATE!]"; // regle de gestionn RG1
 	private TodoItemRepository todoItemRepository;
 
 	public TodoListController(TodoItemRepository todoItemRepository) {
-		super();
+		 // supprimer le constructeur vide,provoaue nullpointerexception
 		this.todoItemRepository = todoItemRepository;
-	}
-	
-	public TodoListController() {
-		super();		
 	}
 
 	@PostMapping("/todos")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public void createTodoItem(@RequestBody TodoItem todoItem) {
-		// Code à compléter
-		// ...
+		this.todoItemRepository.save(todoItem);
 	}
 
 	@GetMapping("/todos")
 	public List<TodoItem> todoItems() {
-		return this.todoItemRepository.findAll().stream()
+		return this.todoItemRepository.findAll().stream() // le controller accède directement au repository.
 				.map(item -> new TodoItem(item.getId(), item.getTime(), finalContent(item)))
 				.collect(Collectors.toList());
 
@@ -53,7 +48,7 @@ public class TodoListController {
 	 * 
 	 * @return liste des items
 	 */
-	private String finalContent(TodoItem item) {
+	private String finalContent(TodoItem item) { // regle de gestion RG1 si l'item a plus de 24h , ajouter late , donc
 		return (Instant.now().isAfter(item.getTime().plus(1, ChronoUnit.DAYS))) ? 
 				LATE + item.getContent()
 				: item.getContent();
