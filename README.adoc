@@ -3,9 +3,9 @@
 ## Nom du(des) étudiant(e)(s) de ce monôme/binôme 
 WARNING: NE PAS OUBLIER DE MENTIONNER LES DEUX NOMS SI VOUS ETES EN BINOME!
 
-#XXX# (et #YYY#)
+RAHARIMALALA ONITINA IAVOTRINIAINA # et # BARRY MAMADOU DIAN)
 
-Commentaires éventuels des étudiants : #XXXXXX#
+Commentaires éventuels des étudiants : 
 
 ## Pré-requis 
 
@@ -67,15 +67,26 @@ TIP: [Rappel Git] Trois dépôts sont ici utilisés : le dépot Github de l'ense
 docker run -it -e POSTGRES_PASSWORD=password -p 5432:5432 postgres
 ```
 *Expliquer cette ligne de commande (y compris les options utilisées)*
+La commande docker run permet de créer et démarrer un conteneur à
+partir d’une image. L’option -it lance le conteneur en mode interactif, ce qui permet d’afficher les logs directement dans le terminal. L’option -
+POSTGRES_PASSWORD=password définit une variable d’environnement qui configure le mot de passe de l’utilisateur postgres. L’option -p
+5432:5432 permet de mapper le port 5432 du conteneur vers le port 5432 de la machine hôte, afin que l’application puisse accéder à la base d
+données. Enfin, postgres correspond à l’image officielle PostgreSQL utilisée pour créer le conteneur.
 
 * Compléter le code manquant dans la méthode `TodoListController.createTodoItem()`
 
 *Pourquoi `todoItemRepository` est-il `null` ? Quelle est la meilleure façon de l'injecter ?*
+La variable todoItemRepository peut être null car le
+contrôleur possède un constructeur vide. Lorsque Spring Framework instancie la classe, il utilise ce constructeur qui n’initialise pas le repositor
+Par conséquent, le repository n’est pas injecté par le conteneur Spring, ce qui peut entraîner une NullPointerException lors de son utilisation.
 
 * Modifier le code en conséquence.
 
-* Tester vos endpoints avec un client REST.
+Nous avons supprimer le constructeur vide et conserver uniquement : public
+TodoListController(TodoItemRepository todoItemRepository) { this.todoItemRepository = todoItemRepository; }
 
+* Tester vos endpoints avec un client REST.
+on a tésté avec bruno 
 
 [NOTE]
 ====
@@ -112,12 +123,43 @@ Source : http://leanpub.com/get-your-hands-dirty-on-clean-architecture[Tom Hombe
   - la couche `domain` qui contient les entités (au sens DDD, pas au sens JPA). En général des classes complexes (méthodes riches, relations entre les entités)
 
 *Rappeler en quelques lignes les grands principes de l'architecture hexagonale.*
+L’architecture hexagonale (aussi appelée Ports and Adapters)
+vise à séparer le cœur métier des technologies externes. Elle organise l’application autour d’un cœur métier indépendant et de ports qui
+définissent les interactions avec l’extérieur.
+Les principaux principes sont : Isolation du domaine métier : la logique métier ne dépend pas des frameworks, de la base de données ou de
+l’interface utilisateur. Ports (interfaces) : ils définissent les opérations que l’application expose ou utilise. Adapters : ils implémentent ces ports
+pour connecter l’application aux technologies externes (REST, base de données, etc.). Inversion de dépendance : les dépendances pointent ver
+le domaine et non vers l’infrastructure 
 
 Compléter ce code avec une fonctionnalité de création de `TodoItem`  persisté en base et appelé depuis un endpoint REST `POST /todos` qui :
+fait 
+La création d’un TodoItem est définie par le port d’entrée AddTodoItem. Ce port représente le cas d’usage permettant d’ajouter un élément dans la liste.
+Le service AddTodoItemService implémente ce port et orchestre l’opération. Il utilise le port de sortie UpdateTodoItem pour sauvegarder l’objet dans la base de données.
+EXEMPLE
+## @Component
+public class AddTodoItemService implements AddTodoItem {
+
+    private UpdateTodoItem updateTodoItem;
+
+    @Inject
+    public AddTodoItemService(UpdateTodoItem updateTodoItem) {
+        this.updateTodoItem = updateTodoItem;
+    }
+
+    @Override
+    public void addTodoItem(TodoItem item) {
+        updateTodoItem.save(item);
+    }
+}
 
 * prend un `TodoItem` au format JSON dans le body (voir exemple de contenu plus haut);
 * renvoie un code `201` en cas de succès. 
-
+EXEMPLE 
+## @PostMapping("/todos")
+@ResponseStatus(HttpStatus.CREATED)
+public void createTodo(@RequestBody TodoItem item) {
+    addTodoItem.addTodoItem(item);
+}
 La fonctionnalité à implémenter est contractualisée par le port d'entrée `AddTodoItem`.
 
 ### Exercice 3 - Ecriture de tests
@@ -128,9 +170,12 @@ _Temps estimé : 20 mins_
 * Implémenter (en junit) des TU portant sur la règle de gestion qui consiste à afficher `[LATE!]` dans la description d'un item en retard de plus de 24h.
 
 *Quels types de tests devra-t-on écrire pour les adaptateurs ?* 
+Les adaptateurs nécessitent des tests d’intégration, car ils dépendent de composants externes comme le framework web ou la base de données.
+Les adaptateurs REST sont testés avec des tests d’intégration web (ex : @WebMvcTest)
+Les adaptateurs de persistance sont testés avec des tests d’intégration avec la base de données
+Ces tests permettent de vérifier le bon fonctionnement des interactions entre l’application et les systèmes externes.
 
-*S'il vous reste du temps, écrire quelques-uns de ces types de test.*
-
+*S'il vous reste du temps, écrire quelques-uns de ces types de test.*ON RENCONTRE beaucoup d'erreur en realisant ces tests 
 [TIP]
 =====
 - Pour tester l'adapter REST, utiliser l'annotation `@WebMvcTest(controllers = TodoListController.class)`
